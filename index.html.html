@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test de compréhension – Experts nationaux VAE</title>
+<style>
+:root{--b:#1A357C;--o:#EF7F12;--bg:#F4F6FB;--ink:#1d2433;--mut:#5b6475;--ok:#1f8a4c;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+header{background:var(--b);color:#fff;padding:16px}
+.in,main{max-width:760px;margin:0 auto}
+header small{opacity:.85;display:block}
+h1{font-size:20px;margin:4px 0 2px}
+main{padding:12px 12px 100px}
+.card{background:#fff;border-radius:10px;padding:14px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.info{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:14px}.info b{color:var(--b)}
+label.f{display:block;font-weight:bold;font-size:14px;margin:12px 0 4px}
+input[type=text]{width:100%;font-size:16px;padding:10px;border:1px solid #b9c1d3;border-radius:8px}
+.mod{background:var(--b);color:#fff;padding:9px 12px;border-radius:8px;font-weight:bold;font-size:14px;margin:22px 0 4px}
+.q{background:#fff;border-radius:10px;padding:12px 12px 6px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.q h3{font-size:15px;margin:0 0 8px}.q h3 span{color:var(--o);margin-right:6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px;margin:0 0 8px;border:1px solid #cfd6e6;border-radius:8px;cursor:pointer;font-size:15px}
+.opt input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--b)}
+.opt b{color:var(--b);flex:none}
+.opt:has(input:checked){background:#e6ecfb;border-color:var(--b)}
+.clr{background:none;border:0;color:var(--mut);font-size:13px;text-decoration:underline;padding:2px 0 8px;cursor:pointer}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #d5dbe9;padding:10px 12px;z-index:5}
+.bar .in{display:flex;gap:10px;align-items:center}
+.prog{flex:1;height:8px;background:#e1e6f2;border-radius:6px;overflow:hidden}.prog i{display:block;height:100%;background:var(--o);width:0;transition:width .2s}
+.cnt{font-size:13px;color:var(--mut);white-space:nowrap}
+.timer{font-weight:bold;font-variant-numeric:tabular-nums;color:var(--b);white-space:nowrap}.timer.low{color:var(--bad)}
+button{font-size:16px;padding:11px 18px;border:0;border-radius:8px;background:var(--b);color:#fff;font-weight:bold;cursor:pointer}
+button.sec{background:#e1e6f2;color:var(--b)}button:disabled{opacity:.5}
+.msg{padding:12px;border-radius:8px;margin:10px 0;font-size:14px}.err{background:#fdecea;color:var(--bad)}.okm{background:#e6f5ec;color:var(--ok)}
+.score{font-size:44px;font-weight:bold;color:var(--b);margin:4px 0}
+.dec{display:inline-block;padding:8px 16px;border-radius:20px;font-weight:bold;color:#fff}.dec.p{background:var(--ok)}.dec.f{background:var(--bad)}
+.code{font-family:monospace;font-size:15px;letter-spacing:1px;word-break:break-all;background:#eef1f8;padding:8px;border-radius:6px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal .box{background:#fff;border-radius:12px;padding:18px;max-width:420px;width:100%}
+.row{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
+table{border-collapse:collapse;width:100%;font-size:14px}td{border-bottom:1px solid #e1e6f2;padding:6px 4px}
+@media print{header,.bar,.noprint{display:none}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
+</style></head><body>
+<header><div class="in"><small>République de Côte d'Ivoire · Direction de l'Apprentissage et de l'Insertion Professionnelle (DAIP)</small><h1>TEST DE COMPRÉHENSION</h1>
+<small>Atelier de renforcement des capacités des experts nationaux VAE · Jeudi 26 novembre 2026 · LPC Yopougon</small></div></header>
+<main id="app"></main>
+<script>
+/* ===================== CONFIGURATION (modifiable) ===================== */
+const DUREE_MIN = 20;          // durée en minutes
+const SEUIL = 20;              // seuil d'attestation (points sur 25)
+const PTS_BON = 1, PTS_MAUVAIS = -1, PTS_VIDE = 0;
+const AFFICHER_CORRECTION = false; // true : montre la bonne réponse aux questions ratées en fin de test
+// Corrigé. Mettre la lettre A, B, C ou D. Une question laissée à "" ne rapporte ni ne retire aucun point.
+// À COMPLÉTER : Q7, Q11, Q13, Q18, Q20 (réponses non confirmées). À vérifier : toutes les autres.
+const CORRIGE = {1:"A",2:"C",3:"D",4:"A",5:"B",6:"C",7:"",8:"A",9:"C",10:"C",11:"",12:"B",13:"",14:"B",15:"B",16:"C",17:"A",18:"",19:"C",20:"",21:"B",22:"C",23:"D",24:"B",25:"D"};
+/* ====================================================================== */
+const MODS=[{"t": "MODULE 1", "n": "CADRE RÉGLEMENTAIRE ET ÉTHIQUE DE LA VAE", "q": [{"n": 1, "t": "Quelle phrase décrit le mieux la VAE ?", "o": {"A": "Un processus qui évalue et certifie des compétences acquises par l'expérience, au regard d'un référentiel.", "B": "Une formation courte qui comble les lacunes du candidat.", "C": "Un examen scolaire noté sur 20.", "D": "Une attestation d'expérience délivrée par le centre."}}, {"n": 2, "t": "Selon le décret n°2023-776, la certification obtenue par la VAE :", "o": {"A": "vaut moins que celle de la formation initiale.", "B": "n'est valable que dans le secteur informel.", "C": "produit les mêmes effets et donne droit aux mêmes diplômes et titres que les autres modes de certification.", "D": "doit être complétée par une formation pour être reconnue."}}, {"n": 3, "t": "Un accompagnateur peut-il siéger au jury d'un candidat qu'il a accompagné ?", "o": {"A": "Oui, il connaît bien le dossier.", "B": "Oui, s'il n'est pas président du jury.", "C": "Oui, si le candidat est d'accord.", "D": "Non : accompagnement et évaluation sont incompatibles."}}, {"n": 4, "t": "La norme ISO/CEI 17024 fixe des exigences générales pour :", "o": {"A": "les organismes qui certifient des personnes (impartialité, compétence des évaluateurs, cohérence des décisions).", "B": "la formation des formateurs.", "C": "les centres d'accueil uniquement.", "D": "la certification des produits."}}, {"n": 5, "t": "Selon la Charte de déontologie, un membre du jury qui doit évaluer un collègue, une connaissance ou un parent :", "o": {"A": "évalue avec plus de rigueur.", "B": "ne participe ni à l'évaluation ni aux délibérations.", "C": "évalue, puis le signale après coup.", "D": "laisse le président décider à sa place."}}, {"n": 6, "t": "La présence (ou l'absence) du candidat à l'étape d'accompagnement :", "o": {"A": "donne des points supplémentaires.", "B": "n'est prise en compte que pour une petite part de la note.", "C": "ne doit pas être prise en compte dans l'évaluation.", "D": "est signalée au président du jury."}}]}, {"t": "MODULE 2", "n": "OUTILS ACTUALISÉS ET GUIDES DES ACTEURS", "q": [{"n": 7, "t": "Qui statue sur la recevabilité d'un dossier de candidature ?", "o": {"A": "L'agent d'accueil.", "B": "Le conseiller VAE.", "C": "L'accompagnateur.", "D": "Le jury local."}}, {"n": 8, "t": "Le conseiller VAE :", "o": {"A": "conduit l'entretien d'information-conseil et aide le candidat à choisir la certification visée.", "B": "rédige le livret de preuves du candidat.", "C": "siège au jury de certification.", "D": "évalue la mise en situation professionnelle."}}, {"n": 9, "t": "« L'accompagnateur guide, le candidat produit » signifie que l'accompagnateur :", "o": {"A": "rédige les passages difficiles du livret.", "B": "peut garantir la réussite au candidat.", "C": "relit de façon critique, sans écrire à la place du candidat.", "D": "choisit seul les preuves à présenter."}}, {"n": 10, "t": "Pour la session 2026, quelles sont les conditions d'accès ?", "o": {"A": "17 ans minimum et 3 ans d'expérience pour tous les diplômes.", "B": "18 ans minimum et 5 ans d'expérience pour tous les diplômes.", "C": "21 ans minimum ; 3 ans (CQP), 5 ans (CAP), 7 ans (BT).", "D": "21 ans minimum ; 5 ans (CQP), 7 ans (CAP), 10 ans (BT)."}}, {"n": 11, "t": "Après une validation partielle, le candidat dispose, pour valider les compétences restantes, de :", "o": {"A": "1 an.", "B": "3 ans.", "C": "5 ans.", "D": "aucun délai."}}]}, {"t": "MODULE 3", "n": "PLATEFORME NUMÉRIQUE ET ENRÔLEMENT", "q": [{"n": 12, "t": "Un candidat peu familier de l'outil informatique :", "o": {"A": "ne peut pas s'inscrire.", "B": "se rend dans un centre VAE où un agent d'accueil l'assiste pour son enrôlement en ligne.", "C": "envoie un dossier papier par courrier.", "D": "confie son dossier à l'accompagnateur."}}, {"n": 13, "t": "Quelle pièce n'est PAS demandée lors de l'enrôlement ?", "o": {"A": "Un extrait de casier judiciaire.", "B": "La pièce d'identité.", "C": "La carte CMU.", "D": "Une photo couleur."}}]}, {"t": "MODULE 4", "n": "IDENTIFICATION ET FORMULATION DES COMPÉTENCES", "q": [{"n": 14, "t": "En explicitation, l'accompagnateur aide le candidat à décrire :", "o": {"A": "ses diplômes.", "B": "son travail réel (ce qu'il fait effectivement).", "C": "le travail prescrit (ce qui devrait se faire).", "D": "ses ressentis."}}, {"n": 15, "t": "Pour constituer le livret de preuves, l'accompagnateur aide le candidat à retenir les activités :", "o": {"A": "que le candidat préfère.", "B": "pertinentes au regard du référentiel du diplôme visé.", "C": "toutes, sans aucun tri.", "D": "les plus récentes."}}, {"n": 16, "t": "Un candidat illettré se présente. Que fait-on ?", "o": {"A": "On refuse son dossier.", "B": "L'accompagnateur rédige le livret à sa place.", "C": "On adapte l'accompagnement (explicitation à l'oral, appui du centre) : le candidat reste acteur et le niveau exigé ne baisse pas.", "D": "Le jury allège son niveau d'exigence."}}, {"n": 17, "t": "Pour un CQP ou un CAP, l'accompagnement se centre surtout sur :", "o": {"A": "la description factuelle des activités d'exécution, souvent selon un déroulé chronologique.", "B": "la conception et la gestion.", "C": "la modélisation et la résolution de problèmes complexes.", "D": "l'encadrement d'équipes."}}]}, {"t": "MODULE 5", "n": "GRILLE D'ÉVALUATION, ENTRETIEN ET DÉLIBÉRATION", "q": [{"n": 18, "t": "Pour le calcul du score final, l'entretien et la MSP comptent respectivement pour :", "o": {"A": "30 % et 70 %.", "B": "70 % et 30 %.", "C": "50 % chacun.", "D": "seule la MSP compte."}}, {"n": 19, "t": "Un candidat obtient un score pondéré de 68/100, mais 52 sur l'une des compétences de la MSP. Quelle est la décision ?", "o": {"A": "Certification totale.", "B": "Ajournement.", "C": "Certification partielle.", "D": "Nouvelle MSP le jour même."}}, {"n": 20, "t": "Un candidat obtient un score pondéré de 55/100, avec toutes les compétences de la MSP à 60 ou plus. Quelle est la décision ?", "o": {"A": "Certification totale.", "B": "Certification partielle.", "C": "Nouvelle MSP le jour même.", "D": "Ajournement."}}, {"n": 21, "t": "L'épreuve d'entretien (30 minutes) porte :", "o": {"A": "sur des questions de cours du référentiel.", "B": "exclusivement sur le livret de preuves, pour confirmer ou infirmer ses informations.", "C": "sur la mise en situation professionnelle.", "D": "sur la vie privée du candidat."}}, {"n": 22, "t": "La mise en situation professionnelle (de 30 minutes à 4 heures) porte sur :", "o": {"A": "toutes les tâches du métier.", "B": "des connaissances théoriques.", "C": "les compétences incontournables du métier, tirées du référentiel d'évaluation et de certification.", "D": "un sujet choisi par le candidat."}}, {"n": 23, "t": "Quelle est la meilleure question à poser en entretien ?", "o": {"A": "« Pourquoi faites-vous ainsi ? »", "B": "« Connaissez-vous les stratégies de maintenance ? »", "C": "Trois questions posées d'un seul coup pour gagner du temps.", "D": "« Comment faites-vous pour organiser le menu hebdomadaire ? »"}}, {"n": 24, "t": "La décision du jury est prise :", "o": {"A": "par le président seul.", "B": "de manière collégiale, sur la base des grilles d'évaluation et des preuves du candidat.", "C": "à la majorité, sans débat.", "D": "sur proposition de l'accompagnateur."}}, {"n": 25, "t": "Qu'est-ce qui est remis au candidat déclaré admis (certification définitive) à l'issue de la proclamation ?", "o": {"A": "Une attestation de réussite seule.", "B": "Le diplôme définitif, immédiatement.", "C": "Un relevé de compétences uniquement.", "D": "Un relevé de compétences et une attestation de réussite, le diplôme étant délivré ensuite par la DEXC."}}]}];
+const ALLQ=MODS.flatMap(m=>m.q);
+const $=(s,r=document)=>r.querySelector(s);
+const el=(t,a={},...k)=>{const e=document.createElement(t);for(const[x,v]of Object.entries(a)){if(x==='class')e.className=v;else if(x.startsWith('on'))e[x]=v;else e.setAttribute(x,v)}k.flat().forEach(c=>e.append(c));return e};
+const app=$('#app');
+let S={ident:{nom:'',prenoms:'',structure:'',fonction:''},answers:{},end:null,started:null,done:null};
+let tick=null;
+function save(){try{localStorage.setItem('vae_test_v1',JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem('vae_test_v1')||'null');if(s&&s.ident)S=s}catch(e){}}
+function reset(){S={ident:{nom:'',prenoms:'',structure:'',fonction:''},answers:{},end:null,started:null,done:null};try{localStorage.removeItem('vae_test_v1')}catch(e){}}
+function compute(a){let pts=0,bons=0,mauv=0,vides=0;ALLQ.forEach(q=>{const r=a[q.n],k=CORRIGE[q.n];if(!r){vides++;pts+=PTS_VIDE}else if(!k){/* pas de corrigé : neutre */}else if(r===k){bons++;pts+=PTS_BON}else{mauv++;pts+=PTS_MAUVAIS}});return{pts,bons,mauv,vides}}
+function code(a){return ALLQ.map(q=>a[q.n]||'-').join('')}
+function fmt(ms){const s=Math.max(0,Math.round(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function modal(text,okLabel,onOk,cancel=true){
+  const m=el('div',{class:'modal'},el('div',{class:'box'},el('p',{},text),el('div',{class:'row'},cancel?el('button',{class:'sec',onclick:()=>m.remove()},'Retour'):'',el('button',{onclick:()=>{m.remove();onOk()}},okLabel))));
+  document.body.append(m)}
+/* ---------- écran d'accueil ---------- */
+function renderStart(){
+  clearInterval(tick);app.replaceChildren();
+  app.append(el('div',{class:'card'},el('div',{class:'info'},
+    el('b',{},'Durée'),el('span',{},DUREE_MIN+' minutes'),
+    el('b',{},'Questions'),el('span',{},'25 questions à choix unique, réparties sur les 5 modules de l\'atelier'),
+    el('b',{},'Notation'),el('span',{},'1 point pour une bonne réponse, −1 point pour une mauvaise réponse et 0 point pour aucune réponse.'),
+    el('b',{},'Seuil d\'attestation'),el('span',{},SEUIL+' points sur 25 (80 %)'),
+    el('b',{},'Consignes'),el('span',{},'Une seule réponse par question. Aucun document n\'est autorisé. Le chronomètre démarre dès que vous appuyez sur « Commencer ».'))));
+  const id=el('div',{class:'card'},el('b',{},'IDENTIFICATION DE L\'EXPERT'));
+  [['nom','Nom'],['prenoms','Prénoms'],['structure','Structure'],['fonction','Fonction']].forEach(([k,l])=>{
+    const i=el('input',{type:'text',autocomplete:'off',value:S.ident[k]||''});i.dataset.k=k;
+    i.oninput=()=>{S.ident[k]=i.value;i.style.borderColor=''};
+    id.append(el('label',{class:'f'},l+' *'),i)});
+  const msg=el('div');
+  id.append(msg,el('div',{class:'row'},el('button',{onclick:()=>{
+    const bad=[...id.querySelectorAll('input')].filter(i=>!i.value.trim());
+    bad.forEach(i=>i.style.borderColor='var(--bad)');
+    if(bad.length){msg.className='msg err';msg.textContent='Renseignez tous les champs.';return}
+    Object.keys(S.ident).forEach(k=>S.ident[k]=S.ident[k].trim());
+    S.started=Date.now();S.end=S.started+DUREE_MIN*60000;save();renderTest()}},'Commencer le test')));
+  app.append(id)}
+/* ---------- test ---------- */
+function upd(){const n=Object.keys(S.answers).length;$('.prog i').style.width=(n/25*100)+'%';$('.cnt').textContent=n+' / 25'}
+function renderTest(){
+  app.replaceChildren();
+  MODS.forEach(m=>{
+    app.append(el('div',{class:'mod'},m.t+' · '+m.n));
+    m.q.forEach(q=>{
+      const box=el('div',{class:'q'},el('h3',{},el('span',{},'Q'+q.n+'.'),q.t));
+      ['A','B','C','D'].forEach(L=>{
+        const r=el('input',{type:'radio',name:'q'+q.n,value:L});
+        if(S.answers[q.n]===L)r.checked=true;
+        r.onchange=()=>{S.answers[q.n]=L;save();upd()};
+        box.append(el('label',{class:'opt'},r,el('b',{},L+'.'),el('span',{},q.o[L])))});
+      box.append(el('button',{class:'clr',onclick:()=>{box.querySelectorAll('input').forEach(i=>i.checked=false);delete S.answers[q.n];save();upd()}},'Effacer ma réponse'));
+      app.append(box)})});
+  const timer=el('span',{class:'timer'},fmt(S.end-Date.now()));
+  app.append(el('div',{class:'bar'},el('div',{class:'in'},timer,el('div',{class:'prog'},el('i')),el('span',{class:'cnt'}),el('button',{onclick:()=>{
+    const n=25-Object.keys(S.answers).length;
+    modal(n?('Il reste '+n+' question(s) sans réponse (0 point). Terminer et voir votre résultat ?'):'Terminer et voir votre résultat ?','Terminer',finish)}},'Terminer'))));
+  upd();
+  clearInterval(tick);
+  tick=setInterval(()=>{const left=S.end-Date.now();timer.textContent=fmt(left);timer.classList.toggle('low',left<=5*60000);if(left<=0){clearInterval(tick);document.querySelectorAll('.modal').forEach(x=>x.remove());finish()}},500);
+}
+function finish(){clearInterval(tick);const r=compute(S.answers);S.done={...r,code:code(S.answers),at:Date.now()};save();renderResult()}
+/* ---------- résultat ---------- */
+function renderResult(){
+  clearInterval(tick);app.replaceChildren();
+  const d=S.done,ok=d.pts>=SEUIL,id=S.ident;
+  const dt=new Date(d.at).toLocaleString('fr-FR',{dateStyle:'long',timeStyle:'short'});
+  const c=el('div',{class:'card'},el('b',{},'RÉSULTAT'),
+    el('p',{},id.prenoms+' '+id.nom+' · '+id.structure+' · '+id.fonction),
+    el('div',{class:'score'},d.pts+' / 25'),
+    el('p',{},Math.round(d.pts/25*100)+' %  ·  seuil : '+SEUIL+' / 25'),
+    el('span',{class:'dec '+(ok?'p':'f')},ok?'Attesté':'Non attesté'),
+    el('table',{style:'margin-top:14px'},
+      el('tr',{},el('td',{},'Bonnes réponses'),el('td',{},String(d.bons))),
+      el('tr',{},el('td',{},'Mauvaises réponses'),el('td',{},String(d.mauv))),
+      el('tr',{},el('td',{},'Sans réponse'),el('td',{},String(d.vides)))),
+    el('p',{style:'font-size:13px;color:var(--mut)'},dt),
+    el('p',{style:'font-size:13px;margin-bottom:4px'},'Code de réponses (à présenter au formateur) :'),
+    el('div',{class:'code'},d.code));
+  app.append(c);
+  app.append(el('div',{class:'msg'},'Présentez cet écran (ou une capture d\'écran) au formateur : c\'est lui qui valide le résultat.'));
+  if(AFFICHER_CORRECTION){
+    const t=el('table');ALLQ.forEach(q=>{const r=S.answers[q.n],k=CORRIGE[q.n];if(k&&r!==k)t.append(el('tr',{},el('td',{},'Q'+q.n),el('td',{},'Votre réponse : '+(r||'—')),el('td',{},'Bonne réponse : '+k)))});
+    app.append(el('div',{class:'card'},el('b',{},'Correction'),t))}
+  app.append(el('div',{class:'row noprint',style:'justify-content:flex-start'},
+    el('button',{class:'sec',onclick:()=>{try{window.print()}catch(e){}}},'Imprimer / PDF'),
+    el('button',{class:'sec',onclick:()=>modal('Effacer ce résultat et passer à un nouveau participant ?','Nouveau participant',()=>{reset();renderStart()})},'Nouveau participant')));
+}
+/* ---------- démarrage ---------- */
+load();
+if(S.done)renderResult();
+else if(S.end){if(Date.now()>=S.end)finish();else renderTest()}
+else renderStart();
+</script></body></html>
